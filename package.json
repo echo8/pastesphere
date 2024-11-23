@@ -1,0 +1,33 @@
+{
+  "name": "pastesphere",
+  "version": "0.1.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "description": "",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.9.3",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1"
+  },
+  "tsup": {
+    "entry": [
+      "src",
+      "!src/**/__tests__/**",
+      "!src/**/*.test.*"
+    ],
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true
+  }
+}
