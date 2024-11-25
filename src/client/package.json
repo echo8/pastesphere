@@ -2,6 +2,7 @@
   "name": "pastesphere-client",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -12,18 +13,25 @@
   "license": "Apache-2.0",
   "description": "",
   "dependencies": {
+    "@chakra-ui/react": "^3.2.0",
+    "@emotion/react": "^11.13.5",
     "@tanstack/react-query": "^5.59.15",
     "@trpc/client": "^11.0.0-rc.643",
     "@trpc/react-query": "^11.0.0-rc.643",
     "@trpc/server": "^11.0.0-rc.643",
+    "next-themes": "^0.4.3",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.2",
+    "react-icons": "^5.3.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
+    "prettier": "3.3.3",
     "typescript": "^5.7.2",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "vite-tsconfig-paths": "^5.1.3"
   }
 }
