@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsx watch index.ts",
+    "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js"
   },
   "author": "",
@@ -22,6 +22,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.9.3",
+    "prettier": "3.3.3",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
