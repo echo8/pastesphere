@@ -1,17 +1,33 @@
 import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
 import cors from "cors";
-import { createRouter } from "./routes";
+import * as trpcExpress from "@trpc/server/adapters/express";
+import { createTRPCRouter, createExpressRouter } from "./routes";
+import { env } from "./util/env";
+import { AppContext } from "./types";
+import { createContext } from "./context";
 
-dotenv.config();
+export type TRPCRouter = ReturnType<typeof createTRPCRouter>;
 
-const app: Express = express();
-const port = process.env.PORT || 2022;
+const run = async () => {
+  const app: Express = express();
+  const ctx: AppContext = await createContext();
 
-app.use(cors<Request>());
+  app.use(cors<Request>());
 
-app.use(createRouter({}));
+  app.use(createExpressRouter(ctx));
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+  const trpcRouter = createTRPCRouter(ctx);
+
+  app.use(
+    "/trpc",
+    trpcExpress.createExpressMiddleware({
+      router: trpcRouter,
+    })
+  );
+
+  app.listen(env.PORT, () => {
+    console.log(`Server is running at http://localhost:${env.PORT}`);
+  });
+};
+
+run();
