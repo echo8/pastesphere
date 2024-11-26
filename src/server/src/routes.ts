@@ -1,7 +1,10 @@
 import express, { Request, Response } from "express";
+import { initTRPC } from "@trpc/server";
+import * as trpcExpress from "@trpc/server/adapters/express";
+import { z } from "zod";
 import { AppContext } from "./types";
 
-const handler =
+const expressHandler =
   (fn: express.Handler) =>
   async (
     req: express.Request,
@@ -15,13 +18,45 @@ const handler =
     }
   };
 
-export const createRouter = (ctx: AppContext) => {
+const createExpressRouter = (ctx: AppContext) => {
   const router = express.Router();
 
   router.get(
     "/hello1",
-    handler(async (_, res) => {
+    expressHandler(async (_, res) => {
       res.send("Hello1");
+    })
+  );
+
+  return router;
+};
+
+const t = initTRPC.create();
+
+export const appRouter = t.router({
+  login: t.procedure
+    .input(
+      z.object({
+        handle: z.string(),
+      })
+    )
+    .mutation((opts) => {
+      // const { handle } = opts.input;
+      return { redirectUrl: "https://www.google.com" };
+    }),
+});
+
+export type AppRouter = typeof appRouter;
+
+export const createRouter = (ctx: AppContext) => {
+  const router = express.Router();
+
+  router.use(createExpressRouter(ctx));
+
+  router.use(
+    "/trpc",
+    trpcExpress.createExpressMiddleware({
+      router: appRouter,
     })
   );
 
