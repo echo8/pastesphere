@@ -13,6 +13,7 @@ const run = async () => {
   const ctx: AppContext = await createContext();
 
   app.use(cors<Request>());
+  app.use(express.json());
 
   app.use(createExpressRouter(ctx));
 
