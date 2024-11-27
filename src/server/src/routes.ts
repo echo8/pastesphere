@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getIronSession } from "iron-session";
+import { isValidHandle } from "@atproto/syntax";
 import { AppContext, Session } from "./types";
 import { env } from "./util/env";
 
@@ -67,6 +68,12 @@ export const createTRPCRouter = (ctx: AppContext) => {
       )
       .mutation(async (opts) => {
         const { handle } = opts.input;
+        if (!isValidHandle(handle)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid handle.",
+          });
+        }
         try {
           const url = await ctx.oauthClient.authorize(handle, {
             scope: "atproto transition:generic",
@@ -74,6 +81,10 @@ export const createTRPCRouter = (ctx: AppContext) => {
           return { redirectUrl: url.toString() };
         } catch (err) {
           console.log(err);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to initiate login.",
+          });
         }
       }),
   });
