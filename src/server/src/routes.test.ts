@@ -2,6 +2,7 @@ import { afterEach, describe, it, expect, vi } from "vitest";
 import { NodeOAuthClient } from "@atproto/oauth-client-node";
 import { initTRPC, inferProcedureInput, TRPCError } from "@trpc/server";
 import { createTRPCRouter } from "./routes";
+import { createTRPCContext } from "./context";
 import type { TRPCRouter } from ".";
 
 vi.mock("@atproto/oauth-client-node");
@@ -18,7 +19,10 @@ describe("login procedure", async () => {
   // @ts-ignore
   const mockOAuthClient = new NodeOAuthClient();
   const router = createTRPCRouter({ oauthClient: mockOAuthClient });
-  const caller = initTRPC.create().createCallerFactory(router)({});
+  const caller = initTRPC
+    .context<typeof createTRPCContext>()
+    .create()
+    .createCallerFactory(router)({});
 
   it("should return a redirect url", async () => {
     vi.mocked(mockOAuthClient.authorize).mockResolvedValue(

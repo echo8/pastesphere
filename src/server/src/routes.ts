@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getIronSession } from "iron-session";
 import { isValidHandle } from "@atproto/syntax";
 import { AppContext, Session } from "./types";
+import { createTRPCContext } from "./context";
 import { env } from "./util/env";
 
 const expressHandler =
@@ -42,7 +43,7 @@ export const createExpressRouter = (ctx: AppContext) => {
       } catch (err) {
         console.log(err);
       }
-      return res.redirect("/");
+      return res.redirect(`http://pastesphere.localhost:${env.PORT}/`);
     })
   );
 
@@ -57,7 +58,7 @@ export const createExpressRouter = (ctx: AppContext) => {
 };
 
 export const createTRPCRouter = (ctx: AppContext) => {
-  const t = initTRPC.create();
+  const t = initTRPC.context<typeof createTRPCContext>().create();
 
   const appRouter = t.router({
     login: t.procedure
@@ -87,6 +88,11 @@ export const createTRPCRouter = (ctx: AppContext) => {
           });
         }
       }),
+    getUser: t.procedure.query((opts) => {
+      return {
+        isLoggedIn: !!opts.ctx.session,
+      };
+    }),
   });
 
   return appRouter;
