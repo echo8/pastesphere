@@ -34,7 +34,7 @@ export function SnippetView({ snippet }: SnippetViewProps) {
         <Box borderWidth="1px" borderRadius="sm" padding="0.2rem" width="100%">
           <Box background="gray.900" padding="0.5rem" width="100%">
             <Text fontFamily="monospace" fontSize="md">
-              {snippet.type}
+              {snippet.body}
             </Text>
           </Box>
         </Box>
