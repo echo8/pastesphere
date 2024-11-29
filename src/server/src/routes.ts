@@ -88,10 +88,20 @@ export const createTRPCRouter = (ctx: AppContext) => {
           });
         }
       }),
-    getUser: t.procedure.query((opts) => {
-      return {
-        isLoggedIn: !!opts.ctx.session,
-      };
+    logout: t.procedure.mutation((opts) => {
+      opts.ctx.session?.destroy();
+    }),
+    getUser: t.procedure.query(async (opts) => {
+      if (opts.ctx.session) {
+        const did = opts.ctx.session.did;
+        const handle = await ctx.idResolver.resolveDidToHandle(did);
+        return {
+          isLoggedIn: true,
+          name: handle,
+        };
+      } else {
+        return { isLoggedIn: false };
+      }
     }),
   });
 

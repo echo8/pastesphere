@@ -13,6 +13,7 @@
   "license": "Apache-2.0",
   "description": "",
   "dependencies": {
+    "@atproto/identity": "^0.4.0",
     "@atproto/oauth-client-node": "^0.1.0",
     "@trpc/server": "^11.0.0-rc.643",
     "better-sqlite3": "^11.6.0",

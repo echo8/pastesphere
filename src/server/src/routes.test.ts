@@ -34,7 +34,7 @@ describe("login procedure", async () => {
     };
 
     const resp = await caller.login(input);
-    expect(resp?.redirectUrl).toBe("http://example.com/");
+    expect(resp.redirectUrl).toBe("http://example.com/");
   });
 
   it("should return internal server error on oauth client error", async () => {

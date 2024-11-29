@@ -4,14 +4,20 @@ import { createClient } from "./auth/client";
 import { AppContext, TRPCContext, Session } from "./types";
 import { env } from "./util/env";
 import { createDb, migrateToLatest } from "./db";
+import {
+  createBidirectionalResolver,
+  createIdResolver,
+} from "./util/idresolver";
 
 export const createAppContext = async (): Promise<AppContext> => {
   const db = createDb(env.DB_PATH);
   await migrateToLatest(db);
 
   const oauthClient = await createClient(db);
+  const idResolver = await createBidirectionalResolver(createIdResolver());
   return {
     oauthClient: oauthClient,
+    idResolver: idResolver,
   };
 };
 
