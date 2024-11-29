@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { PiUserSquare } from "react-icons/pi";
+import { useNavigate } from "react-router";
 import { trpc } from "@/utils/trpc";
 import { User } from "../types";
 
@@ -27,9 +28,10 @@ interface SnippetFormProps {
 }
 
 export function SnippetForm({ user }: SnippetFormProps) {
+  const navigate = useNavigate();
   const { mutate, isPending } = trpc.logout.useMutation({
     onSuccess() {
-      window.location.href = "/";
+      navigate(0);
     },
   });
 
