@@ -30,7 +30,7 @@ export function App() {
         <Routes>
           <Route index element={<FrontPage />} />
           <Route path="user/:handle" element={<UserPage />} />
-          <Route path="snippet/:id" element={<SnippetPage />} />
+          <Route path="user/:handle/snippet/:rkey" element={<SnippetPage />} />
         </Routes>
       </QueryClientProvider>
     </trpc.Provider>

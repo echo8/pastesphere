@@ -1,11 +1,8 @@
-import express, { Request, Response } from "express";
-import { initTRPC, TRPCError } from "@trpc/server";
+import express from "express";
+import { initTRPC } from "@trpc/server";
 import { z } from "zod";
-import { getIronSession } from "iron-session";
-import { isValidHandle } from "@atproto/syntax";
-import { AppContext, Session } from "./types";
+import { AppContext } from "./types";
 import { createTRPCContext } from "./context";
-import { env } from "./util/env";
 
 const expressHandler =
   (fn: express.Handler) =>
@@ -27,30 +24,15 @@ export const createExpressRouter = (ctx: AppContext) => {
   router.get(
     "/api/oauth/callback",
     expressHandler(async (req, res) => {
-      const params = new URLSearchParams(req.originalUrl.split("?")[1]);
-      try {
-        const { session } = await ctx.oauthClient.callback(params);
-        const clientSession = await getIronSession<Session>(req, res, {
-          cookieName: "sid",
-          password: env.COOKIE_SECRET,
-        });
-        if (!clientSession.did) {
-          clientSession.did = session.did;
-          await clientSession.save();
-        } else {
-          console.log("session already exists");
-        }
-      } catch (err) {
-        console.log(err);
-      }
-      return res.redirect(`http://pastesphere.localhost:${env.PORT}/`);
+      const url = await ctx.authService.callback(req, res);
+      return res.redirect(url);
     })
   );
 
   router.get(
     "/api/oauth/clientMetadata",
     expressHandler(async (req, res) => {
-      return res.json(ctx.oauthClient.clientMetadata);
+      return ctx.authService.clientMetadata();
     })
   );
 
@@ -69,39 +51,13 @@ export const createTRPCRouter = (ctx: AppContext) => {
       )
       .mutation(async (opts) => {
         const { handle } = opts.input;
-        if (!isValidHandle(handle)) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Invalid handle.",
-          });
-        }
-        try {
-          const url = await ctx.oauthClient.authorize(handle, {
-            scope: "atproto transition:generic",
-          });
-          return { redirectUrl: url.toString() };
-        } catch (err) {
-          console.log(err);
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to initiate login.",
-          });
-        }
+        return await ctx.authService.login(handle);
       }),
     logout: t.procedure.mutation((opts) => {
-      opts.ctx.session?.destroy();
+      ctx.authService.logout(opts.ctx.session);
     }),
-    getUser: t.procedure.query(async (opts) => {
-      if (opts.ctx.session) {
-        const did = opts.ctx.session.did;
-        const handle = await ctx.idResolver.resolveDidToHandle(did);
-        return {
-          isLoggedIn: true,
-          name: handle,
-        };
-      } else {
-        return { isLoggedIn: false };
-      }
+    getCurrentUser: t.procedure.query(async (opts) => {
+      return await ctx.userService.getCurrentUser(opts.ctx.session);
     }),
   });
 

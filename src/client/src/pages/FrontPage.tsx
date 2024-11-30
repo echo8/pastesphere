@@ -5,7 +5,7 @@ import { User } from "../types";
 import { SnippetForm } from "@/components/SnippetForm";
 
 export function FrontPage() {
-  const { data: user } = trpc.getUser.useQuery<User>();
+  const { data: user } = trpc.getCurrentUser.useQuery<User>();
 
   return (
     <Box>

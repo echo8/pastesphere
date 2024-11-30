@@ -1,6 +1,6 @@
 export type User = {
   isLoggedIn: boolean;
-  name: string;
+  handle: string;
 };
 
 export enum SnippetType {

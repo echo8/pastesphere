@@ -8,4 +8,7 @@ export const env = cleanEnv(process.env, {
   PORT: port({ default: 3000 }),
   API_PORT: port({ default: 2022 }),
   DB_PATH: str({ devDefault: ":memory:" }),
+  NODE_ENV: str({
+    choices: ["development", "production", "test"],
+  }),
 });

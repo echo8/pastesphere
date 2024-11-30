@@ -5,6 +5,7 @@ import { createTRPCRouter, createExpressRouter } from "./routes";
 import { env } from "./util/env";
 import { AppContext } from "./types";
 import { createAppContext, createTRPCContext } from "./context";
+import { errorHandlerExpress } from "./util/error";
 
 export type TRPCRouter = ReturnType<typeof createTRPCRouter>;
 
@@ -14,9 +15,7 @@ const run = async () => {
 
   app.use(
     cors<Request>({
-      origin: [
-        `http://pastesphere.localhost:${env.PORT}`,
-      ],
+      origin: [`http://pastesphere.localhost:${env.PORT}`],
       credentials: true,
     })
   );
@@ -26,7 +25,12 @@ const run = async () => {
   // so redirect that request to our regular host before creating the session
   app.use((req, res, next) => {
     if (req.hostname === "127.0.0.1") {
-      res.redirect(new URL(req.originalUrl, `http://pastesphere.localhost:${env.API_PORT}`).toString());
+      res.redirect(
+        new URL(
+          req.originalUrl,
+          `http://pastesphere.localhost:${env.API_PORT}`
+        ).toString()
+      );
     } else {
       next();
     }
@@ -43,6 +47,8 @@ const run = async () => {
       createContext: createTRPCContext,
     })
   );
+
+  app.use(errorHandlerExpress());
 
   app.listen(env.API_PORT, () => {
     console.log(`Server is running at http://localhost:${env.API_PORT}`);

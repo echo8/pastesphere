@@ -50,7 +50,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
           <PiUserSquare />
         </Icon>
         <Text width="50%" textAlign="left">
-          {user.name}
+          {user.handle}
         </Text>
         <Box width="50%" textAlign="right">
           <Button
