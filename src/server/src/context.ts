@@ -7,6 +7,7 @@ import { createDb, migrateToLatest } from "./db";
 import { AuthService } from "./service/auth";
 import { DidService, createIdResolver } from "./service/did";
 import { UserService } from "./service/user";
+import { SnippetService } from "./service/snippet";
 
 export const createAppContext = async (): Promise<AppContext> => {
   const db = createDb(env.DB_PATH);
@@ -15,12 +16,14 @@ export const createAppContext = async (): Promise<AppContext> => {
   const oauthClient = await createClient(db);
   const authService = new AuthService(oauthClient);
   const didService = new DidService(createIdResolver());
-  const userService = new UserService(didService);
+  const userService = new UserService(didService, authService);
+  const snippetService = new SnippetService(db);
   return {
     oauthClient: oauthClient,
     authService: authService,
     didService: didService,
     userService: userService,
+    snippetService: snippetService,
   };
 };
 

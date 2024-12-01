@@ -43,8 +43,19 @@ export class AuthService {
     return `http://pastesphere.localhost:${env.PORT}/`;
   }
 
-  clientMetadata() {
+  getClientMetadata() {
     return this.oauthClient.clientMetadata;
+  }
+
+  async getSession(session?: IronSession<Session>) {
+    if (session) {
+      try {
+        return await this.oauthClient.restore(session.did);
+      } catch (err) {
+        this.logout(session);
+      }
+    }
+    return null;
   }
 }
 

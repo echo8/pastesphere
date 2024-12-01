@@ -5,13 +5,26 @@ import {
   SqliteDialect,
   Migration,
   MigrationProvider,
+  Generated,
 } from "kysely";
 
 // Types
 
 export type DatabaseSchema = {
+  snippet: Snippet;
   auth_session: AuthSession;
   auth_state: AuthState;
+};
+
+export type Snippet = {
+  id: Generated<number>;
+  authorDid: string;
+  rkey: string;
+  title: string;
+  description: string;
+  type: string;
+  body: string;
+  createdAt: string;
 };
 
 export type AuthSession = {
@@ -41,6 +54,18 @@ const migrationProvider: MigrationProvider = {
 migrations["001"] = {
   async up(db: Kysely<unknown>) {
     await db.schema
+      .createTable("snippet")
+      .addColumn("id", "integer", (col) => col.autoIncrement().primaryKey())
+      .addColumn("authorDid", "varchar", (col) => col.notNull())
+      .addColumn("rkey", "varchar", (col) => col.notNull())
+      .addColumn("title", "varchar", (col) => col.notNull())
+      .addColumn("description", "varchar", (col) => col.notNull())
+      .addColumn("type", "varchar", (col) => col.notNull())
+      .addColumn("body", "varchar", (col) => col.notNull())
+      .addColumn("createdAt", "varchar", (col) => col.notNull())
+      .addUniqueConstraint("did_rkey_unique", ["authorDid", "rkey"])
+      .execute();
+    await db.schema
       .createTable("auth_session")
       .addColumn("key", "varchar", (col) => col.primaryKey())
       .addColumn("session", "varchar", (col) => col.notNull())
@@ -54,6 +79,7 @@ migrations["001"] = {
   async down(db: Kysely<unknown>) {
     await db.schema.dropTable("auth_state").execute();
     await db.schema.dropTable("auth_session").execute();
+    await db.schema.dropTable("snippet").execute();
   },
 };
 

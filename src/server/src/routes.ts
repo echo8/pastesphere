@@ -1,7 +1,9 @@
 import express from "express";
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { AppContext } from "./types";
+import { IronSession } from "iron-session";
+import { Agent } from "@atproto/api";
+import { AppContext, Session } from "./types";
 import { createTRPCContext } from "./context";
 
 const expressHandler =
@@ -32,7 +34,7 @@ export const createExpressRouter = (ctx: AppContext) => {
   router.get(
     "/api/oauth/clientMetadata",
     expressHandler(async (req, res) => {
-      return ctx.authService.clientMetadata();
+      return ctx.authService.getClientMetadata();
     })
   );
 
@@ -41,6 +43,67 @@ export const createExpressRouter = (ctx: AppContext) => {
 
 export const createTRPCRouter = (ctx: AppContext) => {
   const t = initTRPC.context<typeof createTRPCContext>().create();
+
+  const getAgent = async (session?: IronSession<Session>) => {
+    const oauthSession = await ctx.authService.getSession(session);
+    if (oauthSession) {
+      return new Agent(oauthSession);
+    }
+    throw new TRPCError({
+      message: "You need to login to perform this operation.",
+      code: "UNAUTHORIZED",
+    });
+  };
+
+  const snippetRouter = t.router({
+    create: t.procedure
+      .input(
+        z.object({
+          title: z.string(),
+          description: z.string(),
+          type: z.string(),
+          body: z.string(),
+        })
+      )
+      .mutation(async (opts) => {
+        const agent = await getAgent(opts.ctx.session);
+        return await ctx.snippetService.create(opts.input, agent);
+      }),
+    get: t.procedure
+      .input(
+        z.object({
+          handle: z.string(),
+          rkey: z.string(),
+        })
+      )
+      .query(async (opts) => {
+        const { handle, rkey } = opts.input;
+        const did = await ctx.didService.resolveHandleToDid(handle);
+        if (did) {
+          const snippet = await ctx.snippetService.get(did, rkey);
+          if (snippet) {
+            return snippet;
+          }
+        }
+        throw new TRPCError({
+          code: "NOT_FOUND",
+        });
+      }),
+    getForUser: t.procedure
+      .input(
+        z.object({
+          handle: z.string(),
+        })
+      )
+      .query(async (opts) => {
+        const { handle } = opts.input;
+        const did = await ctx.didService.resolveHandleToDid(handle);
+        if (did) {
+          return await ctx.snippetService.getForUser(did);
+        }
+        return [];
+      }),
+  });
 
   const appRouter = t.router({
     login: t.procedure
@@ -59,6 +122,7 @@ export const createTRPCRouter = (ctx: AppContext) => {
     getCurrentUser: t.procedure.query(async (opts) => {
       return await ctx.userService.getCurrentUser(opts.ctx.session);
     }),
+    snippet: snippetRouter,
   });
 
   return appRouter;
