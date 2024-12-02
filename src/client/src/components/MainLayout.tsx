@@ -1,4 +1,11 @@
-import { Box, Heading, Highlight } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Heading,
+  Highlight,
+  Text,
+  Link as ChakraLink,
+} from "@chakra-ui/react";
 import { Link, Outlet } from "react-router";
 
 export function MainLayout() {
@@ -14,6 +21,16 @@ export function MainLayout() {
         </Link>
       </Box>
       <Outlet />
+      <Box marginTop="5.0rem" marginBottom="3.0rem">
+        <Center>
+          <Text color="fg.muted" textStyle="sm">
+            © {new Date().getFullYear()}{" "}
+            <ChakraLink variant="underline" href="https://www.github.com/echo8">
+              echo8
+            </ChakraLink>
+          </Text>
+        </Center>
+      </Box>
     </Box>
   );
 }
