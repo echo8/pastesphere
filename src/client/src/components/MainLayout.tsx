@@ -1,4 +1,4 @@
-import { Box, Heading, Highlight, Link as ChakraLink } from "@chakra-ui/react";
+import { Box, Heading, Highlight } from "@chakra-ui/react";
 import { Link, Outlet } from "react-router";
 
 export function MainLayout() {
