@@ -17,7 +17,7 @@ export const createAppContext = async (): Promise<AppContext> => {
   const authService = new AuthService(oauthClient);
   const didService = new DidService(createIdResolver());
   const userService = new UserService(didService, authService);
-  const snippetService = new SnippetService(db);
+  const snippetService = new SnippetService(db, didService);
   return {
     oauthClient: oauthClient,
     authService: authService,

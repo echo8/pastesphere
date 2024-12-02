@@ -19,6 +19,7 @@ describe("did service", () => {
         signingKey: "",
         pds: "",
       });
+      mockIdResolver.handle.resolve.mockResolvedValue("did:test");
       const handle = await didService.resolveDidToHandle("did:test");
       expect(handle).toBe("alice.test");
     });

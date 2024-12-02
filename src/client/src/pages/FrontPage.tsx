@@ -1,5 +1,5 @@
 import { LoginForm } from "@/components/LoginForm";
-import { Box, Heading, Highlight, Center, Text } from "@chakra-ui/react";
+import { Box, Center, Text } from "@chakra-ui/react";
 import { trpc } from "@/utils/trpc";
 import { User } from "../types";
 import { SnippetForm } from "@/components/SnippetForm";
@@ -9,13 +9,6 @@ export function FrontPage() {
 
   return (
     <Box>
-      <Box background="gray.900" padding="0.5rem">
-        <Heading size="3xl" letterSpacing="tight">
-          <Highlight query="paste" styles={{ color: "teal.600" }}>
-            pastesphere
-          </Highlight>
-        </Heading>
-      </Box>
       <Box margin="4rem">
         <Center>
           <Text textStyle="xl">

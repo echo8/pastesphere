@@ -4,11 +4,15 @@ import { ValidationError } from "@atproto/lexicon";
 import * as Snippet from "../lexicon/types/link/pastesphere/snippet";
 import { Database } from "../db";
 import { ClientError } from "../util/error";
+import { DidService } from "./did";
 
 const LEXICON_ID = "link.pastesphere.snippet";
 
 export class SnippetService {
-  constructor(private db: Database) {}
+  constructor(
+    private db: Database,
+    private didService: DidService
+  ) {}
 
   async create(
     snippet: {
@@ -43,7 +47,10 @@ export class SnippetService {
       createdAt: atRecord.createdAt,
     };
     await this.db.insertInto("snippet").values(dbRecord).execute();
-    return dbRecord;
+    const authorHandle = await this.didService.resolveDidToHandle(
+      dbRecord.authorDid
+    );
+    return { ...dbRecord, authorHandle };
   }
 
   async get(did: string, rkey: string) {
@@ -53,17 +60,30 @@ export class SnippetService {
       .where("authorDid", "=", did)
       .where("rkey", "=", rkey)
       .executeTakeFirst();
-    return snippet;
+    if (snippet) {
+      const authorHandle = await this.didService.resolveDidToHandle(
+        snippet.authorDid
+      );
+      return { ...snippet, authorHandle };
+    }
   }
 
   async getForUser(did: string) {
-    return await this.db
+    const snippets = await this.db
       .selectFrom("snippet")
       .selectAll()
       .where("authorDid", "=", did)
       .orderBy("id", "desc")
       .limit(5)
       .execute();
+    const res = [];
+    for (const snippet of snippets) {
+      const authorHandle = await this.didService.resolveDidToHandle(
+        snippet.authorDid
+      );
+      res.push({ ...snippet, authorHandle });
+    }
+    return res;
   }
 }
 

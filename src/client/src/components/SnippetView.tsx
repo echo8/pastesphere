@@ -5,9 +5,10 @@ import {
   Text,
   Container,
   Icon,
-  Link,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import { HiOutlineDocumentText } from "react-icons/hi2";
+import { Link } from "react-router";
 import { Snippet } from "../types";
 
 interface SnippetViewProps {
@@ -27,9 +28,17 @@ export function SnippetView({ snippet }: SnippetViewProps) {
           >
             <HiOutlineDocumentText />
           </Icon>
-          <Link colorPalette="teal">{snippet.author}</Link>
+          <ChakraLink colorPalette="teal" asChild>
+            <Link to={`/user/${snippet.authorHandle}`}>
+              {snippet.authorHandle}
+            </Link>
+          </ChakraLink>
           <Text>/</Text>
-          <Link>{snippet.title}</Link>
+          <ChakraLink asChild>
+            <Link to={`/user/${snippet.authorHandle}/snippet/${snippet.rkey}`}>
+              {snippet.title}
+            </Link>
+          </ChakraLink>
         </HStack>
         <Box borderWidth="1px" borderRadius="sm" padding="0.2rem" width="100%">
           <Box background="gray.900" padding="0.5rem" width="100%">

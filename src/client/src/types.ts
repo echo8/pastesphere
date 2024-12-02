@@ -10,9 +10,12 @@ export enum SnippetType {
 }
 
 export type Snippet = {
-  author: string;
+  authorDid: string;
+  authorHandle: string;
+  rkey: string;
   title: string;
   description: string;
-  type: SnippetType;
+  type: string;
   body: string;
+  createdAt: string;
 };

@@ -12,23 +12,27 @@ export function createIdResolver() {
 }
 
 export class DidService {
+  private devCache = new Map<string, string>();
+
   constructor(private idResolver: IdResolver) {}
 
   async resolveDidToHandle(did: string) {
     const didDoc = await this.idResolver.did.resolveAtprotoData(did);
-    // resolving handles doesn't work in the local dev env
-    if (env.NODE_ENV === "production") {
-      const resolvedDid = await this.resolveHandleToDid(didDoc.handle);
-      if (resolvedDid === did) {
-        return didDoc.handle;
-      }
-      return did;
-    } else {
+    if (env.NODE_ENV === "development") {
+      this.devCache.set(didDoc.handle, did);
+    }
+    const resolvedDid = await this.resolveHandleToDid(didDoc.handle);
+    if (resolvedDid === did) {
       return didDoc.handle;
     }
+    return did;
   }
 
   async resolveHandleToDid(handle: string) {
-    return await this.idResolver.handle.resolve(handle);
+    if (env.NODE_ENV === "development") {
+      return this.devCache.get(handle);
+    } else {
+      return await this.idResolver.handle.resolve(handle);
+    }
   }
 }

@@ -4,14 +4,18 @@ import { Agent } from "@atproto/api";
 import { createDb, migrateToLatest } from "../db";
 import { env } from "../util/env";
 import { SnippetService, SnippetValidationError } from "./snippet";
+import { DidService } from "./did";
 
 describe("snippet service", async () => {
   const mockAgent = mockDeep<Agent>({ assertDid: "did:test" });
+  const mockDidService = mock<DidService>();
+
+  mockDidService.resolveDidToHandle.mockResolvedValue("alice.test");
 
   const db = createDb(env.DB_PATH);
   await migrateToLatest(db);
 
-  const snippetService = new SnippetService(db);
+  const snippetService = new SnippetService(db, mockDidService);
 
   afterEach(async () => {
     mockReset(mockAgent);
@@ -32,8 +36,7 @@ describe("snippet service", async () => {
       const dbSnippet = await snippetService.get("did:test", newSnippet.rkey);
       expect(dbSnippet).toBeDefined();
       if (dbSnippet) {
-        const { id, ...dbSnippetWithoutId } = dbSnippet;
-        expect(newSnippet).toStrictEqual(dbSnippetWithoutId);
+        expect(newSnippet).toStrictEqual(withoutId(dbSnippet));
       }
     });
 
@@ -68,8 +71,7 @@ describe("snippet service", async () => {
       );
       expect(dbSnippet).toBeDefined();
       if (dbSnippet) {
-        const { id, ...dbSnippetWithoutId } = dbSnippet;
-        expect(newSnippet).toStrictEqual(dbSnippetWithoutId);
+        expect(withHandle(newSnippet)).toStrictEqual(withoutId(dbSnippet));
       }
     });
 
@@ -98,9 +100,17 @@ describe("snippet service", async () => {
       newSnippets = newSnippets.toReversed();
       const dbSnippets = await snippetService.getForUser("did:test");
       for (let i = 0; i < 2; i++) {
-        const { id, ...dbSnippetWithoutId } = dbSnippets[i];
-        expect(newSnippets[i]).toStrictEqual(dbSnippetWithoutId);
+        expect(withHandle(newSnippets[i])).toStrictEqual(withoutId(dbSnippets[i]));
       }
     });
   });
 });
+
+const withHandle = (snippet: any) => {
+  return { ...snippet, authorHandle: "alice.test" };
+};
+
+const withoutId = (snippet: any) => {
+  const { id, ...noId } = snippet;
+  return noId;
+};
