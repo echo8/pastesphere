@@ -42,7 +42,7 @@ export function SnippetView({ snippet }: SnippetViewProps) {
         </HStack>
         <Box borderWidth="1px" borderRadius="sm" padding="0.2rem" width="100%">
           <Box background="gray.900" padding="0.5rem" width="100%">
-            <Text fontFamily="monospace" fontSize="md">
+            <Text fontFamily="monospace" fontSize="md" whiteSpace="pre-line">
               {snippet.body}
             </Text>
           </Box>

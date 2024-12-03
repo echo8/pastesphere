@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Center, Text } from "@chakra-ui/react";
 import { useParams } from "react-router";
 import { skipToken } from "@tanstack/react-query";
 import { SnippetView } from "@/components/SnippetView";
@@ -6,23 +6,48 @@ import { trpc } from "@/utils/trpc";
 
 export function UserPage() {
   const { handle } = useParams();
-  const { data, isPending } = trpc.snippet.getForUser.useQuery(
-    handle
-      ? {
-          handle: handle,
-        }
-      : skipToken
-  );
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
+    trpc.snippet.getForUser.useInfiniteQuery(
+      handle
+        ? {
+            handle: handle,
+          }
+        : skipToken,
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      }
+    );
+
+  const handleScroll = () => {
+    if (
+      document.body.scrollHeight - 300 < window.scrollY + window.innerHeight &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage();
+    }
+  };
+
+  window.addEventListener("scroll", handleScroll);
 
   return (
     <Box>
-      {data?.map((snippet) => {
+      {data?.pages.map((page, i) => {
         return (
-          <Box marginTop="3.0rem" key={snippet.rkey}>
-            <SnippetView snippet={snippet} />
+          <Box marginTop="3.0rem" key={i}>
+            {page.snippets.map((snippet) => {
+              return <SnippetView key={snippet.rkey} snippet={snippet} />;
+            })}
           </Box>
         );
       })}
+      {isFetchingNextPage ? (
+        <Center>
+          <Text>Loading...</Text>
+        </Center>
+      ) : (
+        ""
+      )}
     </Box>
   );
 }

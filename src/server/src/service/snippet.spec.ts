@@ -1,6 +1,7 @@
 import { afterEach, describe, it, expect } from "vitest";
 import { mockDeep, mockReset, mock } from "vitest-mock-extended";
 import { Agent } from "@atproto/api";
+import { sql } from "kysely";
 import { createDb, migrateToLatest } from "../db";
 import { env } from "../util/env";
 import { SnippetService, SnippetValidationError } from "./snippet";
@@ -20,6 +21,9 @@ describe("snippet service", async () => {
   afterEach(async () => {
     mockReset(mockAgent);
     await db.deleteFrom("snippet").execute();
+    await sql<string>`delete from sqlite_sequence where name='snippet';`.execute(
+      db
+    );
   });
 
   describe("create", () => {
@@ -98,10 +102,47 @@ describe("snippet service", async () => {
         newSnippets.push(newSnippet);
       }
       newSnippets = newSnippets.toReversed();
-      const dbSnippets = await snippetService.getForUser("did:test");
+      const { snippets: dbSnippets, nextCursor } =
+        await snippetService.getForUser("did:test", 5);
+      expect(dbSnippets.length).toBe(2);
+      expect(nextCursor).toBeUndefined();
       for (let i = 0; i < 2; i++) {
-        expect(withHandle(newSnippets[i])).toStrictEqual(withoutId(dbSnippets[i]));
+        expect(withHandle(newSnippets[i])).toStrictEqual(
+          withoutId(dbSnippets[i])
+        );
       }
+    });
+
+    it("should return paginated results when specifying a cursor", async () => {
+      let newSnippets = [];
+      for (let i = 0; i < 2; i++) {
+        const newSnippet = {
+          authorDid: "did:test",
+          rkey: "testKey" + i,
+          title: "testTitle",
+          description: "testDescription",
+          type: "testType",
+          body: "testBody",
+          createdAt: new Date().toISOString(),
+        };
+        await db.insertInto("snippet").values(newSnippet).execute();
+        newSnippets.push(newSnippet);
+      }
+      newSnippets = newSnippets.toReversed();
+      const { snippets: dbSnippets, nextCursor } =
+        await snippetService.getForUser("did:test", 1);
+      expect(dbSnippets.length).toBe(1);
+      expect(nextCursor).toBe(1);
+      expect(withHandle(newSnippets[0])).toStrictEqual(
+        withoutId(dbSnippets[0])
+      );
+      const { snippets: dbSnippets2, nextCursor: nextCursor2 } =
+        await snippetService.getForUser("did:test", 1, nextCursor);
+      expect(dbSnippets2.length).toBe(1);
+      expect(nextCursor2).toBeUndefined();
+      expect(withHandle(newSnippets[1])).toStrictEqual(
+        withoutId(dbSnippets2[0])
+      );
     });
   });
 });

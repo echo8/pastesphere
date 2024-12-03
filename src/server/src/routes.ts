@@ -93,15 +93,18 @@ export const createTRPCRouter = (ctx: AppContext) => {
       .input(
         z.object({
           handle: z.string(),
+          limit: z.number().min(1).max(50).nullish(),
+          cursor: z.number().nullish(),
         })
       )
       .query(async (opts) => {
-        const { handle } = opts.input;
+        const { handle, cursor } = opts.input;
+        const limit = opts.input.limit ?? 5;
         const did = await ctx.didService.resolveHandleToDid(handle);
         if (did) {
-          return await ctx.snippetService.getForUser(did);
+          return await ctx.snippetService.getForUser(did, limit, cursor);
         }
-        return [];
+        return { snippets: [], nextCursor: undefined };
       }),
   });
 

@@ -26,7 +26,7 @@ export function FrontPage() {
       <Box>
         <SnippetForm user={user!} />
       </Box>
-      {latestSnippets && (
+      {latestSnippets && latestSnippets.snippets.length > 0 && (
         <Container maxW="4xl" marginTop="5.0rem">
           <HStack>
             <Heading width="50%">My Latest</Heading>
@@ -38,7 +38,7 @@ export function FrontPage() {
           </HStack>
         </Container>
       )}
-      {latestSnippets?.map((snippet) => {
+      {latestSnippets?.snippets.map((snippet) => {
         return (
           <Box marginTop="3.0rem" key={snippet.rkey}>
             <SnippetView snippet={snippet} />

@@ -68,22 +68,28 @@ export class SnippetService {
     }
   }
 
-  async getForUser(did: string) {
-    const snippets = await this.db
+  async getForUser(did: string, limit: number, cursor?: number | null) {
+    let query = this.db
       .selectFrom("snippet")
       .selectAll()
       .where("authorDid", "=", did)
       .orderBy("id", "desc")
-      .limit(5)
-      .execute();
+      .limit(limit + 1);
+    if (cursor) {
+      query = query.where("id", "<=", cursor);
+    }
+    const snippets = await query.execute();
+    const authorHandle = await this.didService.resolveDidToHandle(did);
     const res = [];
     for (const snippet of snippets) {
-      const authorHandle = await this.didService.resolveDidToHandle(
-        snippet.authorDid
-      );
       res.push({ ...snippet, authorHandle });
     }
-    return res;
+    let nextCursor: number | undefined = undefined;
+    if (res.length > limit) {
+      const nextItem = res.pop();
+      nextCursor = nextItem!.id;
+    }
+    return { snippets: res, nextCursor };
   }
 }
 
