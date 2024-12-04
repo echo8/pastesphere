@@ -39,12 +39,27 @@ interface SnippetValues {
   body: string;
 }
 
-const snippetSchema = z.object({
-  title: z.string().min(1, "You must input a title."),
-  description: z.string().nullable(),
-  type: z.nativeEnum(SnippetType, { message: "You must select a file type." }),
-  body: z.string().min(1, "You must input a snippet."),
-});
+const snippetSchema = z
+  .object({
+    title: z
+      .string()
+      .min(1, "You must input a title.")
+      .max(256, "Your title is too long."),
+    description: z
+      .string()
+      .max(256, "Your description is too long.")
+      .nullable(),
+    type: z.nativeEnum(SnippetType, {
+      message: "You must select a file type.",
+    }),
+    body: z.string().min(1, "You must input a snippet."),
+  })
+  .refine(
+    (data) => {
+      new Blob([data.body]).size <= 256000;
+    },
+    { message: "Your snippet is too large." }
+  );
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
   return Object.keys(obj).filter((k) => !Number.isNaN(k)) as K[];
