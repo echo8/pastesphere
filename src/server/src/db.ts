@@ -7,6 +7,7 @@ import {
   MigrationProvider,
   Generated,
 } from "kysely";
+import { SnippetType } from "./types";
 
 // Types
 
@@ -22,7 +23,7 @@ export type Snippet = {
   rkey: string;
   title: string;
   description: string;
-  type: string;
+  type: SnippetType;
   body: string;
   createdAt: string;
 };

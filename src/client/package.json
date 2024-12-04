@@ -20,6 +20,8 @@
     "@trpc/react-query": "^11.0.0-rc.643",
     "@trpc/server": "^11.0.0-rc.643",
     "next-themes": "^0.4.3",
+    "prism-react-renderer": "^2.4.0",
+    "prismjs": "^1.29.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.2",
@@ -27,12 +29,14 @@
     "react-router": "^7.0.1"
   },
   "devDependencies": {
+    "@types/prismjs": "^1.26.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
     "prettier": "3.3.3",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
+    "vite-plugin-prismjs": "^0.0.11",
     "vite-tsconfig-paths": "^5.1.3"
   }
 }

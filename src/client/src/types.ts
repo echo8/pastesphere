@@ -1,13 +1,9 @@
+import { SnippetType } from "../../server/src/types";
+
 export type User = {
   isLoggedIn: boolean;
   handle: string;
 };
-
-export enum SnippetType {
-  PlainText,
-  Markdown,
-  Java,
-}
 
 export type Snippet = {
   authorDid: string;
@@ -15,7 +11,7 @@ export type Snippet = {
   rkey: string;
   title: string;
   description: string;
-  type: string;
+  type: SnippetType;
   body: string;
   createdAt: string;
 };

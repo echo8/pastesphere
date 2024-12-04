@@ -3,7 +3,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { IronSession } from "iron-session";
 import { Agent } from "@atproto/api";
-import { AppContext, Session } from "./types";
+import { AppContext, Session, SnippetType } from "./types";
 import { createTRPCContext } from "./context";
 
 const expressHandler =
@@ -61,7 +61,7 @@ export const createTRPCRouter = (ctx: AppContext) => {
         z.object({
           title: z.string(),
           description: z.string(),
-          type: z.string(),
+          type: z.nativeEnum(SnippetType),
           body: z.string(),
         })
       )

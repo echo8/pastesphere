@@ -6,6 +6,7 @@ import { createDb, migrateToLatest } from "../db";
 import { env } from "../util/env";
 import { SnippetService, SnippetValidationError } from "./snippet";
 import { DidService } from "./did";
+import { SnippetType } from "../types";
 
 describe("snippet service", async () => {
   const mockAgent = mockDeep<Agent>({ assertDid: "did:test" });
@@ -32,7 +33,7 @@ describe("snippet service", async () => {
         {
           title: "testTitle",
           description: "testDescription",
-          type: "testType",
+          type: SnippetType.PlainText,
           body: "testBody",
         },
         mockAgent
@@ -48,7 +49,7 @@ describe("snippet service", async () => {
       const invalidSnippet = {
         title: "",
         description: "testDescription",
-        type: "testType",
+        type: SnippetType.PlainText,
         body: "testBody",
       };
       await expect(
@@ -64,7 +65,7 @@ describe("snippet service", async () => {
         rkey: "testKey",
         title: "testTitle",
         description: "testDescription",
-        type: "testType",
+        type: SnippetType.PlainText,
         body: "testBody",
         createdAt: new Date().toISOString(),
       };
@@ -94,7 +95,7 @@ describe("snippet service", async () => {
           rkey: "testKey" + i,
           title: "testTitle",
           description: "testDescription",
-          type: "testType",
+          type: SnippetType.PlainText,
           body: "testBody",
           createdAt: new Date().toISOString(),
         };
@@ -121,7 +122,7 @@ describe("snippet service", async () => {
           rkey: "testKey" + i,
           title: "testTitle",
           description: "testDescription",
-          type: "testType",
+          type: SnippetType.PlainText,
           body: "testBody",
           createdAt: new Date().toISOString(),
         };

@@ -5,6 +5,7 @@ import * as Snippet from "../lexicon/types/link/pastesphere/snippet";
 import { Database } from "../db";
 import { ClientError } from "../util/error";
 import { DidService } from "./did";
+import { SnippetType } from "../types";
 
 const LEXICON_ID = "link.pastesphere.snippet";
 
@@ -18,7 +19,7 @@ export class SnippetService {
     snippet: {
       title: string;
       description: string;
-      type: string;
+      type: SnippetType;
       body: string;
     },
     agent: Agent

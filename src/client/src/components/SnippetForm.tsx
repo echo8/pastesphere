@@ -23,6 +23,7 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { trpc } from "@/utils/trpc";
 import { User } from "../types";
+import { SnippetType } from "../../../server/src/types";
 
 interface SnippetFormProps {
   user: User;
@@ -31,8 +32,12 @@ interface SnippetFormProps {
 interface SnippetValues {
   title: string;
   description: string;
-  type: string;
+  type: SnippetType;
   body: string;
+}
+
+function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
+  return Object.keys(obj).filter((k) => !Number.isNaN(k)) as K[];
 }
 
 export function SnippetForm({ user }: SnippetFormProps) {
@@ -51,11 +56,10 @@ export function SnippetForm({ user }: SnippetFormProps) {
   } = useForm<SnippetValues>();
 
   const snippetTypes = createListCollection({
-    items: [
-      { label: "Plain Text", value: "text" },
-      { label: "Markdown", value: "markdown" },
-      { label: "Java", value: "java" },
-    ],
+    items: enumKeys(SnippetType).map((key) => {
+      const snippetType = SnippetType[key];
+      return { label: snippetType.toString(), value: snippetType };
+    }),
   });
 
   const { mutate: create, isPending: isCreatePending } =
