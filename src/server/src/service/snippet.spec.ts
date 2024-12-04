@@ -1,10 +1,16 @@
 import { afterEach, describe, it, expect } from "vitest";
 import { mockDeep, mockReset, mock } from "vitest-mock-extended";
 import { Agent } from "@atproto/api";
+import type { CommitCreateEvent, CommitCreate } from "@skyware/jetstream";
 import { sql } from "kysely";
 import { createDb, migrateToLatest } from "../db";
 import { env } from "../util/env";
-import { SnippetService, SnippetValidationError } from "./snippet";
+import {
+  SnippetService,
+  LEXICON_ID,
+  SnippetValidationError,
+  CreateEventValidationError,
+} from "./snippet";
 import { DidService } from "./did";
 import { SnippetType } from "../types";
 
@@ -55,6 +61,114 @@ describe("snippet service", async () => {
       await expect(
         snippetService.create(invalidSnippet, mockAgent)
       ).rejects.toThrow(SnippetValidationError);
+    });
+  });
+
+  describe("sync", () => {
+    it("should sync snippet from create event to the db", async () => {
+      const snippet = {
+        title: "testTitle",
+        description: "testDescription",
+        type: SnippetType.PlainText,
+        body: "testBody",
+      };
+      const eventMock = mock<CommitCreateEvent<typeof LEXICON_ID>>({
+        did: "did:test",
+        commit: mock<CommitCreate<typeof LEXICON_ID>>({
+          record: {
+            $type: LEXICON_ID,
+            ...snippet,
+          },
+          rkey: "testKey",
+        }),
+      });
+      await snippetService.sync(eventMock);
+      const dbSnippet = await snippetService.get("did:test", "testKey");
+      expect(dbSnippet).toBeDefined();
+      if (dbSnippet) {
+        expect({
+          ...snippet,
+          authorDid: "did:test",
+          authorHandle: "alice.test",
+          rkey: "testKey",
+          createdAt: dbSnippet.createdAt,
+        }).toStrictEqual(withoutId(dbSnippet));
+      }
+    });
+
+    it("should throw error on invalid create event", async () => {
+      const snippet = {
+        description: "testDescription",
+        type: SnippetType.PlainText,
+        body: "testBody",
+      };
+      const eventMock = mock<CommitCreateEvent<typeof LEXICON_ID>>({
+        did: "did:test",
+        commit: mock<CommitCreate<typeof LEXICON_ID>>({
+          record: {
+            $type: LEXICON_ID,
+            ...snippet,
+          },
+          rkey: "testKey",
+        }),
+      });
+      await expect(snippetService.sync(eventMock)).rejects.toThrowError(
+        CreateEventValidationError
+      );
+    });
+
+    it("should throw error on invalid snippet", async () => {
+      const snippet = {
+        title: "",
+        description: "testDescription",
+        type: SnippetType.PlainText,
+        body: "testBody",
+      };
+      const eventMock = mock<CommitCreateEvent<typeof LEXICON_ID>>({
+        did: "did:test",
+        commit: mock<CommitCreate<typeof LEXICON_ID>>({
+          record: {
+            $type: LEXICON_ID,
+            ...snippet,
+          },
+          rkey: "testKey",
+        }),
+      });
+      await expect(snippetService.sync(eventMock)).rejects.toThrowError(
+        SnippetValidationError
+      );
+    });
+
+    it("should do nothing when snippet already exists in db", async () => {
+      const snippet = {
+        title: "testTitle",
+        description: "testDescription",
+        type: SnippetType.PlainText,
+        body: "testBody",
+      };
+      const existingSnippet = {
+        authorDid: "did:test",
+        rkey: "testKey",
+        ...snippet,
+        createdAt: new Date().toISOString(),
+      };
+      await db.insertInto("snippet").values(existingSnippet).execute();
+      const eventMock = mock<CommitCreateEvent<typeof LEXICON_ID>>({
+        did: "did:test",
+        commit: mock<CommitCreate<typeof LEXICON_ID>>({
+          record: {
+            $type: LEXICON_ID,
+            ...snippet,
+          },
+          rkey: "testKey",
+        }),
+      });
+      await snippetService.sync(eventMock);
+      const dbSnippet = await snippetService.get("did:test", "testKey");
+      expect(dbSnippet).toBeDefined();
+      if (dbSnippet) {
+        expect(withHandle(existingSnippet)).toStrictEqual(withoutId(dbSnippet));
+      }
     });
   });
 

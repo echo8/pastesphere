@@ -1,13 +1,15 @@
 import { Agent } from "@atproto/api";
 import { TID } from "@atproto/common";
 import { ValidationError } from "@atproto/lexicon";
+import type { CommitCreateEvent } from "@skyware/jetstream";
 import * as Snippet from "../lexicon/types/link/pastesphere/snippet";
 import { Database } from "../db";
 import { ClientError } from "../util/error";
 import { DidService } from "./did";
-import { SnippetType } from "../types";
+import { SnippetType, SnippetSchema } from "../types";
+import { ZodError } from "zod";
 
-const LEXICON_ID = "link.pastesphere.snippet";
+export const LEXICON_ID = "link.pastesphere.snippet";
 
 export class SnippetService {
   constructor(
@@ -18,7 +20,7 @@ export class SnippetService {
   async create(
     snippet: {
       title: string;
-      description: string;
+      description?: string;
       type: SnippetType;
       body: string;
     },
@@ -48,6 +50,37 @@ export class SnippetService {
       createdAt: atRecord.createdAt,
     };
     await this.db.insertInto("snippet").values(dbRecord).execute();
+    const authorHandle = await this.didService.resolveDidToHandle(
+      dbRecord.authorDid
+    );
+    return { ...dbRecord, authorHandle };
+  }
+
+  async sync(event: CommitCreateEvent<typeof LEXICON_ID>) {
+    const parsedSnippet = SnippetSchema.safeParse(event.commit.record);
+    if (!parsedSnippet.success) {
+      throw new CreateEventValidationError(parsedSnippet.error);
+    }
+    const atRecord = {
+      $type: LEXICON_ID,
+      ...parsedSnippet.data,
+      createdAt: new Date().toISOString(),
+    };
+    const validationRes = Snippet.validateRecord(atRecord);
+    if (!validationRes.success) {
+      throw new SnippetValidationError(validationRes.error);
+    }
+    const dbRecord = {
+      ...parsedSnippet.data,
+      authorDid: event.did,
+      rkey: event.commit.rkey,
+      createdAt: atRecord.createdAt,
+    };
+    await this.db
+      .insertInto("snippet")
+      .values(dbRecord)
+      .onConflict((oc) => oc.doNothing())
+      .execute();
     const authorHandle = await this.didService.resolveDidToHandle(
       dbRecord.authorDid
     );
@@ -97,5 +130,11 @@ export class SnippetService {
 export class SnippetValidationError extends ClientError {
   constructor(err: ValidationError) {
     super("Invalid snippet: " + err.message, err);
+  }
+}
+
+export class CreateEventValidationError extends ClientError {
+  constructor(err: ZodError) {
+    super("Invalid snippet in create event: " + err.message, err);
   }
 }

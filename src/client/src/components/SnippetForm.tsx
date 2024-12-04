@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { trpc } from "@/utils/trpc";
 import { User } from "../types";
+import { enumKeys } from "../utils/enum";
 import { SnippetType } from "../../../server/src/types";
 
 interface SnippetFormProps {
@@ -55,10 +56,6 @@ const snippetSchema = z.object({
       message: "Your snippet is too large.",
     }),
 });
-
-function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
-  return Object.keys(obj).filter((k) => !Number.isNaN(k)) as K[];
-}
 
 export function SnippetForm({ user }: SnippetFormProps) {
   const navigate = useNavigate();

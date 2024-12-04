@@ -1,5 +1,6 @@
 import type { OAuthClient } from "@atproto/oauth-client-node";
 import { IronSession } from "iron-session";
+import { z } from "zod";
 import { AuthService } from "./service/auth";
 import { DidService } from "./service/did";
 import { UserService } from "./service/user";
@@ -69,3 +70,10 @@ export enum SnippetType {
   YAML = "YAML",
   Zig = "Zig",
 }
+
+export const SnippetSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  type: z.nativeEnum(SnippetType),
+  body: z.string(),
+});

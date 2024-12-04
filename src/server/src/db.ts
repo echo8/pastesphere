@@ -22,7 +22,7 @@ export type Snippet = {
   authorDid: string;
   rkey: string;
   title: string;
-  description: string;
+  description?: string;
   type: SnippetType;
   body: string;
   createdAt: string;
@@ -60,7 +60,7 @@ migrations["001"] = {
       .addColumn("authorDid", "varchar", (col) => col.notNull())
       .addColumn("rkey", "varchar", (col) => col.notNull())
       .addColumn("title", "varchar", (col) => col.notNull())
-      .addColumn("description", "varchar", (col) => col.notNull())
+      .addColumn("description", "varchar")
       .addColumn("type", "varchar", (col) => col.notNull())
       .addColumn("body", "varchar", (col) => col.notNull())
       .addColumn("createdAt", "varchar", (col) => col.notNull())

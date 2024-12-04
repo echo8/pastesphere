@@ -6,12 +6,15 @@ import { env } from "./util/env";
 import { AppContext } from "./types";
 import { createAppContext, createTRPCContext } from "./context";
 import { errorHandlerExpress } from "./util/error";
+import { createJetStream } from "./firehose/jetstream";
 
 export type TRPCRouter = ReturnType<typeof createTRPCRouter>;
 
 const run = async () => {
   const app: Express = express();
   const ctx: AppContext = await createAppContext();
+
+  const jetstream = createJetStream(ctx);
 
   app.use(
     cors<Request>({
@@ -52,6 +55,7 @@ const run = async () => {
 
   app.listen(env.API_PORT, () => {
     console.log(`Server is running at http://localhost:${env.API_PORT}`);
+    jetstream.start();
   });
 };
 

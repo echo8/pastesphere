@@ -3,7 +3,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { IronSession } from "iron-session";
 import { Agent } from "@atproto/api";
-import { AppContext, Session, SnippetType } from "./types";
+import { AppContext, Session, SnippetType, SnippetSchema } from "./types";
 import { createTRPCContext } from "./context";
 
 const expressHandler =
@@ -56,19 +56,10 @@ export const createTRPCRouter = (ctx: AppContext) => {
   };
 
   const snippetRouter = t.router({
-    create: t.procedure
-      .input(
-        z.object({
-          title: z.string(),
-          description: z.string(),
-          type: z.nativeEnum(SnippetType),
-          body: z.string(),
-        })
-      )
-      .mutation(async (opts) => {
-        const agent = await getAgent(opts.ctx.session);
-        return await ctx.snippetService.create(opts.input, agent);
-      }),
+    create: t.procedure.input(SnippetSchema).mutation(async (opts) => {
+      const agent = await getAgent(opts.ctx.session);
+      return await ctx.snippetService.create(opts.input, agent);
+    }),
     get: t.procedure
       .input(
         z.object({

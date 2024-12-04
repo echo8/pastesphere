@@ -8,7 +8,7 @@ import { CID } from 'multiformats/cid'
 
 export interface Record {
   title: string
-  description: string
+  description?: string
   type: string
   body: string
   createdAt: string
