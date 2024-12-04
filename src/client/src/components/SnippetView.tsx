@@ -11,6 +11,8 @@ import {
 import { HiOutlineDocumentText } from "react-icons/hi2";
 import { Link } from "react-router";
 import { Highlight, themes, Prism } from "prism-react-renderer";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Snippet } from "../types";
 import { SnippetType } from "../../../server/src/types";
 
@@ -190,31 +192,37 @@ export function SnippetView({ snippet }: SnippetViewProps) {
         </HStack>
         <Box borderWidth="1px" borderRadius="sm" padding="0.2rem" width="100%">
           <Box background="gray.900" padding="0.5rem" width="100%">
-            <Highlight
-              language={prismLangMap.get(snippet.type) ?? ""}
-              code={snippet.body}
-              theme={themes.vsDark}
-            >
-              {({ style, tokens, getLineProps, getTokenProps }) => (
-                <Code
-                  padding={4}
-                  rounded="md"
-                  display="block"
-                  whiteSpace="pre"
-                  backgroundColor="blackAlpha.600"
-                  overflow="auto"
-                  fontSize="sm"
-                >
-                  {tokens.map((line, i) => (
-                    <div key={i} {...getLineProps({ line })}>
-                      {line.map((token, key) => (
-                        <span key={key} {...getTokenProps({ token })} />
-                      ))}
-                    </div>
-                  ))}
-                </Code>
-              )}
-            </Highlight>
+            {snippet.type == SnippetType.Markdown ? (
+              <div id="markdown">
+                <Markdown remarkPlugins={[remarkGfm]}>{snippet.body}</Markdown>
+              </div>
+            ) : (
+              <Highlight
+                language={prismLangMap.get(snippet.type) ?? ""}
+                code={snippet.body}
+                theme={themes.vsDark}
+              >
+                {({ style, tokens, getLineProps, getTokenProps }) => (
+                  <Code
+                    padding={4}
+                    rounded="md"
+                    display="block"
+                    whiteSpace="pre"
+                    backgroundColor="blackAlpha.600"
+                    overflow="auto"
+                    fontSize="sm"
+                  >
+                    {tokens.map((line, i) => (
+                      <div key={i} {...getLineProps({ line })}>
+                        {line.map((token, key) => (
+                          <span key={key} {...getTokenProps({ token })} />
+                        ))}
+                      </div>
+                    ))}
+                  </Code>
+                )}
+              </Highlight>
+            )}
           </Box>
         </Box>
       </VStack>
