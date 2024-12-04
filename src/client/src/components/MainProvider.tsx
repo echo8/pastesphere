@@ -128,14 +128,14 @@ const customConfig = defineConfig({
       overflow: "auto",
     },
     "#markdown tr": {
-      borderTopWidth: "1px",
+      borderTopWidth: "3px",
     },
     "#markdown tr:nth-child(2n)": {
       backgroundColor: "gray.800",
     },
     "#markdown td, #markdown th": {
       padding: "6px 13px",
-      borderTopWidth: "1px",
+      borderTopWidth: "3px",
     },
     "#markdown th": {
       fontWeight: "600",

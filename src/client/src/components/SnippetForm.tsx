@@ -17,10 +17,13 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@/components/ui/select";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { PiUserSquare } from "react-icons/pi";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { trpc } from "@/utils/trpc";
 import { User } from "../types";
 import { SnippetType } from "../../../server/src/types";
@@ -35,6 +38,13 @@ interface SnippetValues {
   type: SnippetType;
   body: string;
 }
+
+const snippetSchema = z.object({
+  title: z.string().min(1, "You must input a title."),
+  description: z.string().nullable(),
+  type: z.nativeEnum(SnippetType, { message: "You must select a file type." }),
+  body: z.string().min(1, "You must input a snippet."),
+});
 
 function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
   return Object.keys(obj).filter((k) => !Number.isNaN(k)) as K[];
@@ -53,7 +63,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SnippetValues>();
+  } = useForm<SnippetValues>({ resolver: zodResolver(snippetSchema) });
 
   const snippetTypes = createListCollection({
     items: enumKeys(SnippetType).map((key) => {
@@ -114,7 +124,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
               <Input
                 background="gray.800"
                 placeholder="Title"
-                {...register("title", { required: "Title is required" })}
+                {...register("title")}
               />
               <Input
                 background="gray.800"
@@ -124,7 +134,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
               <SelectRoot
                 background="gray.800"
                 collection={snippetTypes}
-                {...register("type", { required: "Type is required" })}
+                {...register("type")}
               >
                 <SelectTrigger>
                   <SelectValueText placeholder="Type" />
@@ -143,15 +153,47 @@ export function SnippetForm({ user }: SnippetFormProps) {
               placeholder="Your snippet"
               rows={10}
               fontFamily="monospace"
-              {...register("body", { required: "Body is required" })}
+              {...register("body")}
             />
           </VStack>
         </Box>
         <Center margin="1.0rem">
-          <Button background="gray.800" color="whiteAlpha.800" loading={isCreatePending} type="submit">
+          <Button
+            background="gray.800"
+            color="whiteAlpha.800"
+            loading={isCreatePending}
+            type="submit"
+          >
             Submit
           </Button>
         </Center>
+        {errors.title?.message ? (
+          <Alert
+            status="error"
+            title={errors.title?.message}
+            marginBottom="5px"
+          />
+        ) : (
+          ""
+        )}
+        {errors.type?.message ? (
+          <Alert
+            status="error"
+            title={errors.type?.message}
+            marginBottom="5px"
+          />
+        ) : (
+          ""
+        )}
+        {errors.body?.message ? (
+          <Alert
+            status="error"
+            title={errors.body?.message}
+            marginBottom="5px"
+          />
+        ) : (
+          ""
+        )}
       </form>
     </Container>
   );

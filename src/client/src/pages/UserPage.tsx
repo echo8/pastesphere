@@ -1,4 +1,5 @@
-import { Box, Center, Text } from "@chakra-ui/react";
+import { Box, Center, Text, Container } from "@chakra-ui/react";
+import { Alert } from "@/components/ui/alert";
 import { useParams } from "react-router";
 import { skipToken } from "@tanstack/react-query";
 import { SnippetView } from "@/components/SnippetView";
@@ -32,6 +33,21 @@ export function UserPage() {
 
   return (
     <Box>
+      {!isFetching &&
+      (!data ||
+        data?.pages.length == 0 ||
+        data?.pages.map((p) => p.snippets.length).reduce((p, c) => p + c) ==
+          0) ? (
+        <Container maxW="4xl" marginTop="3.0rem">
+          <Alert
+            status="info"
+            title="We couldn't find any snippets for this user."
+            colorPalette="teal"
+          />
+        </Container>
+      ) : (
+        ""
+      )}
       {data?.pages.map((page, i) => {
         return (
           <Box marginTop="3.0rem" key={i}>
