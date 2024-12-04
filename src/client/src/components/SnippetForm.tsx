@@ -98,7 +98,12 @@ export function SnippetForm({ user }: SnippetFormProps) {
             </Button>
           </Box>
         </HStack>
-        <Box borderWidth="1px" borderRadius="sm" padding="0.2rem">
+        <Box
+          borderWidth="3px"
+          borderRadius="md"
+          padding="0.2rem"
+          borderColor="gray.800"
+        >
           <VStack>
             <HStack
               width="100%"
@@ -107,17 +112,17 @@ export function SnippetForm({ user }: SnippetFormProps) {
               borderBottomWidth="5px"
             >
               <Input
-                variant="subtle"
+                background="gray.800"
                 placeholder="Title"
                 {...register("title", { required: "Title is required" })}
               />
               <Input
-                variant="subtle"
+                background="gray.800"
                 placeholder="Description"
                 {...register("description")}
               />
               <SelectRoot
-                variant="subtle"
+                background="gray.800"
                 collection={snippetTypes}
                 {...register("type", { required: "Type is required" })}
               >
@@ -134,7 +139,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
               </SelectRoot>
             </HStack>
             <Textarea
-              variant="subtle"
+              background="gray.800"
               placeholder="Your snippet"
               rows={10}
               fontFamily="monospace"
@@ -143,7 +148,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
           </VStack>
         </Box>
         <Center margin="1.0rem">
-          <Button variant="subtle" loading={isCreatePending} type="submit">
+          <Button background="gray.800" color="whiteAlpha.800" loading={isCreatePending} type="submit">
             Submit
           </Button>
         </Center>

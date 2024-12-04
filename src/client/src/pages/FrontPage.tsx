@@ -40,7 +40,7 @@ export function FrontPage() {
       )}
       {latestSnippets?.snippets.map((snippet) => {
         return (
-          <Box marginTop="3.0rem" key={snippet.rkey}>
+          <Box marginTop="2.0rem" key={snippet.rkey}>
             <SnippetView snippet={snippet} />
           </Box>
         );

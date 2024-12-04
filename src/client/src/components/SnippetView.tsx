@@ -7,8 +7,9 @@ import {
   Icon,
   Link as ChakraLink,
   Code,
+  IconButton,
 } from "@chakra-ui/react";
-import { HiOutlineDocumentText } from "react-icons/hi2";
+import { HiOutlineDocumentText, HiLink } from "react-icons/hi2";
 import { Link } from "react-router";
 import { Highlight, themes, Prism } from "prism-react-renderer";
 import Markdown from "react-markdown";
@@ -168,64 +169,106 @@ interface SnippetViewProps {
 export function SnippetView({ snippet }: SnippetViewProps) {
   return (
     <Container maxW="4xl" marginBottom="3.0rem">
-      <VStack width="100%">
-        <HStack width="100%">
-          <Icon
-            fontSize="2xl"
-            color="gray.500"
-            padding="0.1rem"
-            margin="0.1rem"
-          >
-            <HiOutlineDocumentText />
-          </Icon>
-          <ChakraLink colorPalette="teal" asChild>
-            <Link to={`/user/${snippet.authorHandle}`}>
-              {snippet.authorHandle}
-            </Link>
-          </ChakraLink>
-          <Text>/</Text>
-          <ChakraLink asChild>
-            <Link to={`/user/${snippet.authorHandle}/snippet/${snippet.rkey}`}>
-              {snippet.title}
-            </Link>
-          </ChakraLink>
-        </HStack>
-        <Box borderWidth="1px" borderRadius="sm" padding="0.2rem" width="100%">
-          <Box background="gray.900" padding="0.5rem" width="100%">
-            {snippet.type == SnippetType.Markdown ? (
-              <div id="markdown">
-                <Markdown remarkPlugins={[remarkGfm]}>{snippet.body}</Markdown>
-              </div>
-            ) : (
-              <Highlight
-                language={prismLangMap.get(snippet.type) ?? ""}
-                code={snippet.body}
-                theme={themes.vsDark}
-              >
-                {({ style, tokens, getLineProps, getTokenProps }) => (
+      <Box
+        borderWidth="3px"
+        borderRadius="md"
+        padding="0.2rem"
+        borderColor="gray.800"
+        width="100%"
+      >
+        <Box width="100%">
+          <VStack width="100%">
+            <HStack width="100%" background="gray.800" padding="0.5rem">
+              <HStack width="90%">
+                <Icon
+                  fontSize="2xl"
+                  color="gray.500"
+                  padding="0.1rem"
+                  margin="0.1rem"
+                >
+                  <HiOutlineDocumentText />
+                </Icon>
+                <ChakraLink colorPalette="teal" asChild>
+                  <Link to={`/user/${snippet.authorHandle}`}>
+                    {snippet.authorHandle}
+                  </Link>
+                </ChakraLink>
+                <Text>/</Text>
+                <ChakraLink asChild>
+                  <Link
+                    to={`/user/${snippet.authorHandle}/snippet/${snippet.rkey}`}
+                  >
+                    {snippet.title}
+                  </Link>
+                </ChakraLink>
+              </HStack>
+              <HStack width="10%">
+                <Box width="100%" textAlign="right">
+                  <IconButton
+                    variant="surface"
+                    size="xs"
+                    title="Copy permalink"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `http://pastesphere.localhost:3000/user/${snippet.authorHandle}/snippet/${snippet.rkey}`
+                      );
+                    }}
+                  >
+                    <HiLink />
+                  </IconButton>
+                </Box>
+              </HStack>
+            </HStack>
+            <Box width="100%">
+              <Box padding="0.9rem" width="100%">
+                {snippet.type == SnippetType.PlainText ? (
                   <Code
-                    padding={4}
-                    rounded="md"
                     display="block"
-                    whiteSpace="pre"
-                    backgroundColor="blackAlpha.600"
+                    whiteSpace="pre-wrap"
+                    backgroundColor="transparent"
                     overflow="auto"
                     fontSize="sm"
                   >
-                    {tokens.map((line, i) => (
-                      <div key={i} {...getLineProps({ line })}>
-                        {line.map((token, key) => (
-                          <span key={key} {...getTokenProps({ token })} />
-                        ))}
-                      </div>
-                    ))}
+                    {snippet.body}
                   </Code>
+                ) : snippet.type == SnippetType.Markdown ? (
+                  <div id="markdown">
+                    <Markdown remarkPlugins={[remarkGfm]}>
+                      {snippet.body}
+                    </Markdown>
+                  </div>
+                ) : (
+                  <Highlight
+                    language={prismLangMap.get(snippet.type) ?? ""}
+                    code={snippet.body}
+                    theme={themes.vsDark}
+                  >
+                    {({ style, tokens, getLineProps, getTokenProps }) => (
+                      <Code
+                        padding={0}
+                        rounded="md"
+                        display="block"
+                        whiteSpace="pre"
+                        backgroundColor="transparent"
+                        overflow="auto"
+                        fontSize="sm"
+                      >
+                        {tokens.map((line, i) => (
+                          <div key={i} {...getLineProps({ line })}>
+                            {line.map((token, key) => (
+                              <span key={key} {...getTokenProps({ token })} />
+                            ))}
+                          </div>
+                        ))}
+                      </Code>
+                    )}
+                  </Highlight>
                 )}
-              </Highlight>
-            )}
-          </Box>
+              </Box>
+            </Box>
+          </VStack>
         </Box>
-      </VStack>
+      </Box>
     </Container>
   );
 }
