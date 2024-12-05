@@ -19,6 +19,7 @@ VOLUME /data
 
 ENV NODE_ENV=production
 ENV DB_PATH=/data/db.sqlite
+ENV PORT=443
 
 COPY package*.json ./
 COPY src/client/package.json ./src/client/package.json

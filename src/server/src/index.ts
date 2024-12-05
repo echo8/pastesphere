@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
+import pino from "pino";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { createTRPCRouter, createExpressRouter } from "./routes";
 import { env } from "./util/env";
@@ -9,6 +10,8 @@ import { errorHandlerExpress } from "./util/error";
 import { createJetStream } from "./firehose/jetstream";
 
 export type TRPCRouter = ReturnType<typeof createTRPCRouter>;
+
+const logger = pino({ name: "server" });
 
 const run = async () => {
   const app: Express = express();
@@ -57,8 +60,12 @@ const run = async () => {
 
   app.use(errorHandlerExpress());
 
-  app.listen(env.API_PORT, () => {
-    console.log("Server is running");
+  if (env.isProduction) {
+    app.use(express.static("client/dist"));
+  }
+
+  app.listen(env.isProduction ? env.PORT : env.API_PORT, () => {
+    logger.info("Server is running");
     jetstream.start();
   });
 };
