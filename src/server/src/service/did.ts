@@ -7,7 +7,7 @@ const DAY = HOUR * 24;
 export function createIdResolver() {
   return new IdResolver({
     didCache: new MemoryCache(HOUR, DAY),
-    plcUrl: "http://localhost:2582",
+    plcUrl: env.PLC_URL,
   });
 }
 
