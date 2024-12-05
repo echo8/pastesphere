@@ -5,6 +5,9 @@ import { getIronSession, IronSession } from "iron-session";
 import { ClientError, ServerError } from "../util/error";
 import { Session } from "../types";
 import { env } from "../util/env";
+import pino from "pino";
+
+const logger = pino({ name: "auth" });
 
 export class AuthService {
   constructor(private oauthClient: OAuthClient) {}
@@ -19,6 +22,7 @@ export class AuthService {
       });
       return { redirectUrl: url.toString() };
     } catch (err) {
+      logger.error({ error: err }, "Failed to initiate login");
       throw new AuthorizeFailure(err);
     }
   }
@@ -38,7 +42,7 @@ export class AuthService {
       clientSession.did = session.did;
       await clientSession.save();
     } else {
-      console.log("session already exists");
+      logger.info("session already exists");
     }
     return env.isProduction ? env.PUBLIC_URL : `${env.PUBLIC_URL}:${env.PORT}`;
   }
