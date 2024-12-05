@@ -34,7 +34,7 @@ export const createExpressRouter = (ctx: AppContext) => {
   router.get(
     "/api/oauth/clientMetadata",
     expressHandler(async (req, res) => {
-      return ctx.authService.getClientMetadata();
+      return res.json(ctx.authService.getClientMetadata());
     })
   );
 
