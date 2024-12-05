@@ -16,6 +16,7 @@ FROM node:22.12-slim
 
 WORKDIR /app
 VOLUME /data
+VOLUME /certs
 
 ENV NODE_ENV=production
 ENV DB_PATH=/data/db.sqlite

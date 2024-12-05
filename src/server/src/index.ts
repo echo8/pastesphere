@@ -1,6 +1,8 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
 import pino from "pino";
+import https from "https";
+import fs from "fs";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { createTRPCRouter, createExpressRouter } from "./routes";
 import { env } from "./util/env";
@@ -62,12 +64,25 @@ const run = async () => {
 
   if (env.isProduction) {
     app.use(express.static("client/dist"));
-  }
 
-  app.listen(env.isProduction ? env.PORT : env.API_PORT, () => {
-    logger.info("Server is running");
-    jetstream.start();
-  });
+    https
+      .createServer(
+        {
+          cert: fs.readFileSync("/certs/fullchain.pem"),
+          key: fs.readFileSync("/certs/privkey.pem"),
+        },
+        app
+      )
+      .listen(env.PORT, () => {
+        logger.info("Server is running");
+        jetstream.start();
+      });
+  } else {
+    app.listen(env.API_PORT, () => {
+      logger.info("Server is running");
+      jetstream.start();
+    });
+  }
 };
 
 run();
