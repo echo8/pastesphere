@@ -18,7 +18,9 @@ const run = async () => {
 
   app.use(
     cors<Request>({
-      origin: [`http://pastesphere.localhost:${env.PORT}`],
+      origin: [
+        env.isProduction ? env.PUBLIC_URL : `${env.PUBLIC_URL}:${env.PORT}`,
+      ],
       credentials: true,
     })
   );
@@ -31,7 +33,9 @@ const run = async () => {
       res.redirect(
         new URL(
           req.originalUrl,
-          `http://pastesphere.localhost:${env.API_PORT}`
+          env.isProduction
+            ? env.PUBLIC_URL
+            : `${env.PUBLIC_URL}:${env.API_PORT}`
         ).toString()
       );
     } else {
@@ -54,7 +58,7 @@ const run = async () => {
   app.use(errorHandlerExpress());
 
   app.listen(env.API_PORT, () => {
-    console.log(`Server is running at http://localhost:${env.API_PORT}`);
+    console.log("Server is running");
     jetstream.start();
   });
 };

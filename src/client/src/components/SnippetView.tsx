@@ -210,7 +210,7 @@ export function SnippetView({ snippet }: SnippetViewProps) {
                     title="Copy permalink"
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        `http://pastesphere.localhost:3000/user/${snippet.authorHandle}/snippet/${snippet.rkey}`
+                        `${import.meta.env.VITE_PUBLIC_URL}/user/${snippet.authorHandle}/snippet/${snippet.rkey}`
                       );
                     }}
                   >

@@ -3,12 +3,13 @@ import type { CommitCreateEvent } from "@skyware/jetstream";
 import pino from "pino";
 import { LEXICON_ID } from "../service/snippet";
 import { AppContext } from "../types";
+import { env } from "../util/env";
 
 const logger = pino({ name: "jetstream" });
 
 export const createJetStream = (ctx: AppContext) => {
   const jetstream = new Jetstream({
-    endpoint: "ws://localhost:6008/subscribe",
+    endpoint: env.JETSTREAM_ENDPOINT,
     wantedCollections: [LEXICON_ID],
   });
 

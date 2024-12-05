@@ -4,12 +4,16 @@ import { StateStore, SessionStore } from "./store";
 import { Database } from "../db";
 
 export const createClient = async (db: Database) => {
-  const url = `http://127.0.0.1:${env.API_PORT}`;
+  const url = env.isProduction
+    ? env.PUBLIC_URL
+    : `http://127.0.0.1:${env.API_PORT}`;
   const enc = encodeURIComponent;
   return new NodeOAuthClient({
     clientMetadata: {
       client_name: "pastesphere",
-      client_id: `http://localhost?redirect_uri=${enc(`${url}/api/oauth/callback`)}`,
+      client_id: env.isProduction
+        ? `${url}/api/oauth/clientMetadata`
+        : `http://localhost?redirect_uri=${enc(`${url}/api/oauth/callback`)}`,
       client_uri: url,
       redirect_uris: [`${url}/api/oauth/callback`],
       scope: "atproto transition:generic",
@@ -19,9 +23,9 @@ export const createClient = async (db: Database) => {
       token_endpoint_auth_method: "none",
       dpop_bound_access_tokens: true,
     },
-    plcDirectoryUrl: "http://localhost:2582",
+    plcDirectoryUrl: env.PLC_URL,
     // @ts-expect-error:
-    handleResolver: "http://localhost:2584",
+    handleResolver: env.BSKY_API_URL,
     stateStore: new StateStore(db),
     sessionStore: new SessionStore(db),
   });

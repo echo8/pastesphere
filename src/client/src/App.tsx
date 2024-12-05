@@ -14,7 +14,7 @@ export function App() {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: "http://pastesphere.localhost:2022/trpc",
+          url: import.meta.env.VITE_TRPC_URL,
           fetch(url, options) {
             return fetch(url, {
               ...options,

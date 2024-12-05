@@ -40,7 +40,7 @@ export class AuthService {
     } else {
       console.log("session already exists");
     }
-    return `http://pastesphere.localhost:${env.PORT}/`;
+    return env.isProduction ? env.PUBLIC_URL : `${env.PUBLIC_URL}:${env.PORT}`;
   }
 
   getClientMetadata() {

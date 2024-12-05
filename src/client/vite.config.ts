@@ -12,4 +12,9 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [react(), tsconfigPaths(), prismjs({ languages: "all" })],
+  esbuild: {
+    supported: {
+      "top-level-await": true,
+    },
+  },
 });

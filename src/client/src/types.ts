@@ -10,7 +10,7 @@ export type Snippet = {
   authorHandle: string;
   rkey: string;
   title: string;
-  description: string;
+  description?: string;
   type: SnippetType;
   body: string;
   createdAt: string;
