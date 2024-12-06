@@ -33,10 +33,6 @@ const run = async () => {
   app.use(express.json());
   app.use(compression());
 
-  app.use((req, res, next) => {
-    setTimeout(next, 5000);
-  });
-
   // the atproto oauth flow in dev needs to redirect to a callback on host 127.0.0.1,
   // so redirect that request to our regular host before creating the session
   app.use((req, res, next) => {
