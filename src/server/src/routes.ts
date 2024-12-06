@@ -24,7 +24,7 @@ export const createExpressRouter = (ctx: AppContext) => {
   const router = express.Router();
 
   router.get(
-    "/api/oauth/callback",
+    "/oauth/callback",
     expressHandler(async (req, res) => {
       const url = await ctx.authService.callback(req, res);
       return res.redirect(url);
@@ -32,7 +32,7 @@ export const createExpressRouter = (ctx: AppContext) => {
   );
 
   router.get(
-    "/api/oauth/clientMetadata",
+    "/oauth/clientMetadata",
     expressHandler(async (req, res) => {
       return res.json(ctx.authService.getClientMetadata());
     })

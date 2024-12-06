@@ -8,6 +8,12 @@ const match = <Prod, Dev>({ prod, dev }: { prod: Prod; dev: Dev }) => {
 
 export const env = cleanEnv(process.env, {
   COOKIE_SECRET: str({ devDefault: "00000000000000000000000000000000" }),
+  COOKIE_DOMAIN: str({
+    default: match({
+      prod: "pastesphere.link",
+      dev: "pastesphere.localhost",
+    }),
+  }),
   PORT: port({ default: 3000 }),
   API_PORT: port({ default: 2022 }),
   DB_PATH: str({ default: ":memory:" }),
@@ -22,6 +28,12 @@ export const env = cleanEnv(process.env, {
   }),
   PUBLIC_WWW_URL: str({
     default: "https://www.pastesphere.link",
+  }),
+  PUBLIC_API_URL: str({
+    default: match({
+      prod: "https://api.pastesphere.link",
+      dev: "http://pastesphere.localhost",
+    }),
   }),
   PLC_URL: str({
     default: match({

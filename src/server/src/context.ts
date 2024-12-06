@@ -33,6 +33,9 @@ export const createTRPCContext = async (
   const session = await getIronSession<Session>(opts.req, opts.res, {
     cookieName: "sid",
     password: env.COOKIE_SECRET,
+    cookieOptions: {
+      domain: env.COOKIE_DOMAIN,
+    },
   });
 
   if (!session.did) {

@@ -5,17 +5,17 @@ import { Database } from "../db";
 
 export const createClient = async (db: Database) => {
   const url = env.isProduction
-    ? env.PUBLIC_URL
+    ? env.PUBLIC_API_URL
     : `http://127.0.0.1:${env.API_PORT}`;
   const enc = encodeURIComponent;
   return new NodeOAuthClient({
     clientMetadata: {
       client_name: "pastesphere",
       client_id: env.isProduction
-        ? `${url}/api/oauth/clientMetadata`
-        : `http://localhost?redirect_uri=${enc(`${url}/api/oauth/callback`)}`,
+        ? `${url}/oauth/clientMetadata`
+        : `http://localhost?redirect_uri=${enc(`${url}/oauth/callback`)}`,
       client_uri: url,
-      redirect_uris: [`${url}/api/oauth/callback`],
+      redirect_uris: [`${url}/oauth/callback`],
       scope: "atproto transition:generic",
       grant_types: ["authorization_code", "refresh_token"],
       response_types: ["code"],

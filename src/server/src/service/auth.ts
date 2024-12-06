@@ -37,6 +37,9 @@ export class AuthService {
     const clientSession = await getIronSession<Session>(req, res, {
       cookieName: "sid",
       password: env.COOKIE_SECRET,
+      cookieOptions: {
+        domain: env.COOKIE_DOMAIN,
+      },
     });
     if (!clientSession.did) {
       clientSession.did = session.did;
