@@ -20,6 +20,9 @@ export const env = cleanEnv(process.env, {
       dev: "http://pastesphere.localhost",
     }),
   }),
+  PUBLIC_WWW_URL: str({
+    default: "https://www.pastesphere.link",
+  }),
   PLC_URL: str({
     default: match({
       prod: "https://plc.directory",

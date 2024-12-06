@@ -1,4 +1,5 @@
 import express, { Express, Request, Response } from "express";
+import compression from "compression";
 import cors from "cors";
 import pino from "pino";
 import https from "https";
@@ -23,13 +24,18 @@ const run = async () => {
 
   app.use(
     cors<Request>({
-      origin: [
-        env.isProduction ? env.PUBLIC_URL : `${env.PUBLIC_URL}:${env.PORT}`,
-      ],
+      origin: env.isProduction
+        ? [env.PUBLIC_URL, env.PUBLIC_WWW_URL]
+        : [`${env.PUBLIC_URL}:${env.PORT}`],
       credentials: true,
     })
   );
   app.use(express.json());
+  app.use(compression());
+
+  app.use((req, res, next) => {
+    setTimeout(next, 5000);
+  });
 
   // the atproto oauth flow in dev needs to redirect to a callback on host 127.0.0.1,
   // so redirect that request to our regular host before creating the session
