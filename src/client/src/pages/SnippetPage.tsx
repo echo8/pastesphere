@@ -1,5 +1,6 @@
 import { Box, Container } from "@chakra-ui/react";
 import { Alert } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useParams } from "react-router";
 import { skipToken } from "@tanstack/react-query";
 import { SnippetView } from "@/components/SnippetView";
@@ -26,6 +27,10 @@ export function SnippetPage() {
             title="Sorry but we couldn't find this snippet."
             colorPalette="teal"
           />
+        </Container>
+      ) : isPending ? (
+        <Container maxW="4xl" marginTop="3.0rem">
+          <Skeleton height="7.0rem" />
         </Container>
       ) : (
         ""
