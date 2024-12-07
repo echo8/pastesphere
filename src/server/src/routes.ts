@@ -5,6 +5,7 @@ import { IronSession } from "iron-session";
 import { Agent } from "@atproto/api";
 import { AppContext, Session, SnippetType, SnippetSchema } from "./types";
 import { createTRPCContext } from "./context";
+import { isDid } from "@atproto/did";
 
 const expressHandler =
   (fn: express.Handler) =>
@@ -69,7 +70,9 @@ export const createTRPCRouter = (ctx: AppContext) => {
       )
       .query(async (opts) => {
         const { handle, rkey } = opts.input;
-        const did = await ctx.didService.resolveHandleToDid(handle);
+        const did = isDid(handle)
+          ? handle
+          : await ctx.didService.resolveHandleToDid(handle);
         if (did) {
           const snippet = await ctx.snippetService.get(did, rkey);
           if (snippet) {
@@ -91,7 +94,9 @@ export const createTRPCRouter = (ctx: AppContext) => {
       .query(async (opts) => {
         const { handle, cursor } = opts.input;
         const limit = opts.input.limit ?? 5;
-        const did = await ctx.didService.resolveHandleToDid(handle);
+        const did = isDid(handle)
+          ? handle
+          : await ctx.didService.resolveHandleToDid(handle);
         if (did) {
           return await ctx.snippetService.getForUser(did, limit, cursor);
         }
