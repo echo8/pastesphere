@@ -13,8 +13,14 @@ export function MainLayout() {
     <Box>
       <Box background="gray.800" padding="0.5rem">
         <Link to="/">
-          <Heading size="3xl" letterSpacing="tight">
-            <Highlight query="paste" styles={{ color: "teal.600" }}>
+          <Heading size="3xl" letterSpacing="tight" color="white">
+            <Highlight
+              query="paste"
+              styles={{
+                base: { color: "teal.400" },
+                _dark: { color: "teal.600" },
+              }}
+            >
               pastesphere
             </Highlight>
           </Heading>

@@ -119,7 +119,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
           borderWidth="3px"
           borderRadius="md"
           padding="0.2rem"
-          borderColor="gray.800"
+          borderColor={{ base: "gray.300", _dark: "gray.800" }}
         >
           <VStack>
             <HStack
@@ -129,17 +129,17 @@ export function SnippetForm({ user }: SnippetFormProps) {
               borderBottomWidth="5px"
             >
               <Input
-                background="gray.800"
+                background={{ base: "gray.200", _dark: "gray.800" }}
                 placeholder="Title"
                 {...register("title")}
               />
               <Input
-                background="gray.800"
+                background={{ base: "gray.200", _dark: "gray.800" }}
                 placeholder="Description"
                 {...register("description")}
               />
               <SelectRoot
-                background="gray.800"
+                background={{ base: "gray.200", _dark: "gray.800" }}
                 collection={snippetTypes}
                 {...register("type")}
               >
@@ -156,7 +156,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
               </SelectRoot>
             </HStack>
             <Textarea
-              background="gray.800"
+              background={{ base: "gray.200", _dark: "gray.800" }}
               placeholder="Your snippet"
               rows={10}
               fontFamily="monospace"
@@ -166,7 +166,7 @@ export function SnippetForm({ user }: SnippetFormProps) {
         </Box>
         <Center margin="1.0rem">
           <Button
-            background="gray.800"
+            background={{ base: "gray.500", _dark: "gray.800" }}
             color="whiteAlpha.800"
             loading={isCreatePending}
             type="submit"

@@ -44,7 +44,7 @@ export function LoginForm() {
               borderBottomColor="teal.600"
               borderBottomWidth="5px"
             >
-              <Box width="100%" background="gray.900" marginBottom="0.3rem">
+              <Box width="100%" background={{ base: "gray.200", _dark: "gray.900"}} marginBottom="0.3rem">
                 <Heading textAlign="center">Login to get started!</Heading>
               </Box>
             </Box>

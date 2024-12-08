@@ -9,6 +9,7 @@ import {
   Code,
   IconButton,
 } from "@chakra-ui/react";
+import { useColorMode } from "./ui/color-mode";
 import { HiOutlineDocumentText, HiLink } from "react-icons/hi2";
 import { Link } from "react-router";
 import { Highlight, themes, Prism } from "prism-react-renderer";
@@ -167,18 +168,23 @@ interface SnippetViewProps {
 }
 
 export function SnippetView({ snippet }: SnippetViewProps) {
+  const { colorMode } = useColorMode();
   return (
     <Container maxW="4xl" marginBottom="3.0rem">
       <Box
         borderWidth="3px"
         borderRadius="md"
         padding="0.2rem"
-        borderColor="gray.800"
+        borderColor={{ base: "gray.200", _dark: "gray.800" }}
         width="100%"
       >
         <Box width="100%">
           <VStack width="100%">
-            <HStack width="100%" background="gray.800" padding="0.5rem">
+            <HStack
+              width="100%"
+              background={{ base: "gray.200", _dark: "gray.800" }}
+              padding="0.5rem"
+            >
               <HStack width="90%">
                 <Icon
                   fontSize="2xl"
@@ -188,7 +194,7 @@ export function SnippetView({ snippet }: SnippetViewProps) {
                 >
                   <HiOutlineDocumentText />
                 </Icon>
-                <ChakraLink colorPalette="teal" asChild>
+                <ChakraLink colorPalette="teal" fontWeight="bold" asChild>
                   <Link to={`/user/${snippet.authorHandle}`}>
                     {snippet.authorHandle}
                   </Link>
@@ -241,7 +247,9 @@ export function SnippetView({ snippet }: SnippetViewProps) {
                   <Highlight
                     language={prismLangMap.get(snippet.type) ?? ""}
                     code={snippet.body}
-                    theme={themes.vsDark}
+                    theme={
+                      colorMode === "dark" ? themes.vsDark : themes.vsLight
+                    }
                   >
                     {({ style, tokens, getLineProps, getTokenProps }) => (
                       <Code
