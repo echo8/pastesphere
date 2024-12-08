@@ -216,7 +216,7 @@ export function SnippetView({ snippet }: SnippetViewProps) {
                     title="Copy permalink"
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        `${import.meta.env.VITE_PUBLIC_URL}/user/${snippet.authorHandle}/snippet/${snippet.rkey}`
+                        `${import.meta.env.VITE_PUBLIC_URL}/user/${snippet.authorDid}/snippet/${snippet.rkey}`
                       );
                     }}
                   >
