@@ -34,7 +34,7 @@ jobs:
   deploy-server:
     runs-on: ubuntu-latest
     needs: build-server
-    setups:
+    steps:
       - name: Deploy
         run: echo "foo"
   
