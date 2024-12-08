@@ -28,5 +28,5 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: echo8/pastesphere:latest
+          tags: ghcr.io/echo8/pastesphere:latest
           file: Dockerfile.server
