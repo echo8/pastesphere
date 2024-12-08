@@ -31,12 +31,20 @@ jobs:
           tags: ghcr.io/echo8/pastesphere:latest
           file: Dockerfile.server
   
+  deploy-server:
+    runs-on: ubuntu-latest
+    needs: build-server
+    setups:
+      - name: Deploy
+        run: echo "foo"
+  
   build-deploy-client:
     runs-on: ubuntu-latest
+    needs: deploy-server
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -47,3 +55,9 @@ jobs:
       
       - name: Build client
         run: npm run build:client
+      
+      - name: Deploy client
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: pages deploy src/client/dist --project-name=pastesphere
