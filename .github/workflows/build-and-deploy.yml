@@ -56,7 +56,7 @@ jobs:
         run: ssh prod 'docker pull ghcr.io/echo8/pastesphere:latest'
       
       - name: Stop server container
-        run: ssh prod 'docker stop pastesphere'
+        run: ssh prod 'docker stop pastesphere && docker rm pastesphere'
       
       - name: Start server container with latest image
         run: ssh prod "docker run --name pastesphere -d -p 443:443 -v /home/$SSH_USER/data:/data -v /home/$SSH_USER/certs:/certs -e COOKIE_SECRET=$COOKIE_SECRET ghcr.io/echo8/pastesphere:latest"
