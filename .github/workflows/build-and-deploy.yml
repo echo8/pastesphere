@@ -35,8 +35,34 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-server
     steps:
-      - name: Deploy
-        run: echo "foo"
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/pastesphere.key
+          chmod 600 ~/.ssh/pastesphere.key
+          cat >>~/.ssh/config <<END
+          Host prod
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/pastesphere.key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+
+      - name: Pull latest server image
+        run: ssh prod 'docker pull ghcr.io/echo8/pastesphere:latest'
+      
+      - name: Stop server container
+        run: ssh prod 'docker stop pastesphere'
+      
+      - name: Start server container with latest image
+        run: ssh prod "docker run --name pastesphere -d -p 443:443 -v /home/$SSH_USER/data:/data -v /home/$SSH_USER/certs:/certs -e COOKIE_SECRET=$COOKIE_SECRET ghcr.io/echo8/pastesphere:latest"
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
   
   build-deploy-client:
     runs-on: ubuntu-latest
@@ -56,9 +82,9 @@ jobs:
       - name: Build client
         run: npm run build:client
       
-      - name: Deploy client
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy src/client/dist --project-name=pastesphere
+      # - name: Deploy client
+      #   uses: cloudflare/wrangler-action@v3
+      #   with:
+      #     apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      #     accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #     command: pages deploy src/client/dist --project-name=pastesphere
