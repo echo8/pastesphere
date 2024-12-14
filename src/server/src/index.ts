@@ -65,8 +65,6 @@ const run = async () => {
   app.use(errorHandlerExpress());
 
   if (env.isProduction) {
-    app.use(express.static("client/dist"));
-
     https
       .createServer(
         {
