@@ -2,10 +2,13 @@ import express from "express";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { IronSession } from "iron-session";
+import pino from "pino";
 import { Agent } from "@atproto/api";
 import { AppContext, Session, SnippetType, SnippetSchema } from "./types";
 import { createTRPCContext } from "./context";
 import { isDid } from "@atproto/did";
+
+const logger = pino({ name: "router" });
 
 const expressHandler =
   (fn: express.Handler) =>
@@ -36,6 +39,21 @@ export const createExpressRouter = (ctx: AppContext) => {
     "/oauth/clientMetadata",
     expressHandler(async (req, res) => {
       return res.json(ctx.authService.getClientMetadata());
+    })
+  );
+
+  router.get(
+    "/bot/user/:handleOrDid/snippet/:rkey",
+    expressHandler(async (req, res) => {
+      logger.info(
+        {
+          handleOrDid: req.params["handleOrDid"],
+          rkey: req.params["rkey"],
+          userAgent: req.headers["user-agent"],
+        },
+        "bot request"
+      );
+      return res.status(200).send();
     })
   );
 
