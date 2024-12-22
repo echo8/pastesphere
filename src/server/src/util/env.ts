@@ -53,4 +53,10 @@ export const env = cleanEnv(process.env, {
       dev: "ws://localhost:6008/subscribe",
     }),
   }),
+  OG_IMAGE_URL: str({
+    default: match({
+      prod: "https://pastesphere.link/icon-512x512.png",
+      dev: "http://pastesphere.localhost/icon-512x512.png",
+    }),
+  }),
 });

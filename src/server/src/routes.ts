@@ -52,7 +52,11 @@ export const createExpressRouter = (ctx: AppContext) => {
         const snippet = await ctx.snippetService.get(did, rkey);
         if (snippet) {
           const url = `${env.PUBLIC_URL}/user/${snippet.authorDid}/snippet/${snippet.rkey}`;
-          return res.render("snippet", { snippet: snippet, url: url });
+          return res.render("snippet", {
+            snippet: snippet,
+            url: url,
+            imageUrl: env.OG_IMAGE_URL,
+          });
         }
       }
       return res.status(404).send();
