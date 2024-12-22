@@ -7,6 +7,8 @@ import { Agent } from "@atproto/api";
 import { AppContext, Session, SnippetType, SnippetSchema } from "./types";
 import { createTRPCContext } from "./context";
 import { isDid } from "@atproto/did";
+import { page, html } from "./util/view";
+import { env } from "./util/env";
 
 const logger = pino({ name: "router" });
 
@@ -45,15 +47,40 @@ export const createExpressRouter = (ctx: AppContext) => {
   router.get(
     "/bot/user/:handleOrDid/snippet/:rkey",
     expressHandler(async (req, res) => {
-      logger.info(
-        {
-          handleOrDid: req.params["handleOrDid"],
-          rkey: req.params["rkey"],
-          userAgent: req.headers["user-agent"],
-        },
-        "bot request"
-      );
-      return res.status(200).send();
+      const handleOrDid = req.params["handleOrDid"];
+      const rkey = req.params["rkey"];
+      const did = isDid(handleOrDid)
+        ? handleOrDid
+        : await ctx.didService.resolveHandleToDid(handleOrDid);
+      if (did) {
+        const snippet = await ctx.snippetService.get(did, rkey);
+        if (snippet) {
+          const url = `${env.PUBLIC_URL}/user/${snippet.authorDid}/snippet/${snippet.rkey}`;
+          return res.type("html").send(
+            page(
+              html`<html>
+                <head>
+                  <title>${snippet.title}</title>
+                  <meta property="og:title" content="${snippet.title}" />
+                  <meta
+                    property="og:description"
+                    content="${snippet.description}"
+                  />
+                  <meta property="og:type" content="website" />
+                  <meta property="og:url" content="${url}" />
+                  <meta property="og:site_name" content="Pastesphere" />
+                  <meta name="description" content="${snippet.description}" />
+                  <link rel="canonical" href="${url}" />
+                </head>
+                <body>
+                  Snippet metadata for bots.
+                </body>
+              </html>`
+            )
+          );
+        }
+      }
+      return res.status(404).send();
     })
   );
 
