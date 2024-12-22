@@ -2,15 +2,11 @@ import express from "express";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { IronSession } from "iron-session";
-import pino from "pino";
 import { Agent } from "@atproto/api";
 import { AppContext, Session, SnippetType, SnippetSchema } from "./types";
 import { createTRPCContext } from "./context";
 import { isDid } from "@atproto/did";
-import { page, html } from "./util/view";
 import { env } from "./util/env";
-
-const logger = pino({ name: "router" });
 
 const expressHandler =
   (fn: express.Handler) =>
@@ -56,28 +52,7 @@ export const createExpressRouter = (ctx: AppContext) => {
         const snippet = await ctx.snippetService.get(did, rkey);
         if (snippet) {
           const url = `${env.PUBLIC_URL}/user/${snippet.authorDid}/snippet/${snippet.rkey}`;
-          return res.type("html").send(
-            page(
-              html`<html>
-                <head>
-                  <title>${snippet.title}</title>
-                  <meta property="og:title" content="${snippet.title}" />
-                  <meta
-                    property="og:description"
-                    content="${snippet.description}"
-                  />
-                  <meta property="og:type" content="website" />
-                  <meta property="og:url" content="${url}" />
-                  <meta property="og:site_name" content="Pastesphere" />
-                  <meta name="description" content="${snippet.description}" />
-                  <link rel="canonical" href="${url}" />
-                </head>
-                <body>
-                  Snippet metadata for bots.
-                </body>
-              </html>`
-            )
-          );
+          return res.render("snippet", { snippet: snippet, url: url });
         }
       }
       return res.status(404).send();

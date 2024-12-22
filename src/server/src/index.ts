@@ -22,6 +22,8 @@ const run = async () => {
 
   const jetstream = createJetStream(ctx);
 
+  app.set("view engine", "ejs");
+
   app.use(
     cors<Request>({
       origin: env.isProduction
